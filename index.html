@@ -1,0 +1,4359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>NF Control | Gestão de Notas Fiscais</title>
+
+<style>
+
+:root{
+    --primary:#2563eb;
+    --primary-dark:#1d4ed8;
+    --success:#16a34a;
+    --danger:#dc2626;
+    --warning:#d97706;
+
+    --dark:#0f172a;
+    --dark-2:#1e293b;
+
+    --bg:#f1f5f9;
+    --card:#ffffff;
+    --border:#e2e8f0;
+
+    --text:#1e293b;
+    --muted:#64748b;
+
+    --shadow:0 10px 30px rgba(15,23,42,.08);
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.app{
+    display:flex;
+    min-height:100vh;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar{
+    width:260px;
+    background:linear-gradient(180deg,#0f172a,#172554);
+    color:white;
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    overflow-y:auto;
+    z-index:100;
+}
+
+.logo{
+    padding:25px 20px;
+    border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+.logo h1{
+    font-size:23px;
+}
+
+.logo span{
+    color:#60a5fa;
+}
+
+.logo p{
+    font-size:12px;
+    color:#94a3b8;
+    margin-top:5px;
+}
+
+.menu{
+    padding:15px 10px;
+}
+
+.menu-title{
+    font-size:11px;
+    color:#64748b;
+    text-transform:uppercase;
+    padding:15px 12px 7px;
+}
+
+.menu button{
+    width:100%;
+    border:0;
+    background:transparent;
+    color:#cbd5e1;
+    padding:13px 14px;
+    border-radius:9px;
+    text-align:left;
+    cursor:pointer;
+    margin-bottom:4px;
+    font-size:14px;
+    transition:.2s;
+}
+
+.menu button:hover{
+    background:rgba(255,255,255,.08);
+    color:white;
+}
+
+.menu button.active{
+    background:var(--primary);
+    color:white;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main{
+    margin-left:260px;
+    width:calc(100% - 260px);
+    padding:30px;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.topbar h2{
+    font-size:28px;
+}
+
+.topbar p{
+    color:var(--muted);
+    margin-top:5px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn{
+    border:0;
+    padding:11px 17px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    font-size:14px;
+}
+
+.btn-primary{
+    background:var(--primary);
+    color:white;
+}
+
+.btn-primary:hover{
+    background:var(--primary-dark);
+}
+
+.btn-success{
+    background:var(--success);
+    color:white;
+}
+
+.btn-danger{
+    background:var(--danger);
+    color:white;
+}
+
+.btn-warning{
+    background:var(--warning);
+    color:white;
+}
+
+.btn-light{
+    background:#e2e8f0;
+    color:#334155;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:20px;
+}
+
+.card{
+    background:white;
+    border-radius:14px;
+    padding:20px;
+    box-shadow:var(--shadow);
+}
+
+.card-title{
+    color:var(--muted);
+    font-size:13px;
+    margin-bottom:10px;
+}
+
+.card-value{
+    font-size:27px;
+    font-weight:bold;
+}
+
+.card.blue{
+    border-left:5px solid var(--primary);
+}
+
+.card.green{
+    border-left:5px solid var(--success);
+}
+
+.card.red{
+    border-left:5px solid var(--danger);
+}
+
+.card.orange{
+    border-left:5px solid var(--warning);
+}
+
+/* =========================
+   FINANCE
+========================= */
+
+.finance{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+    margin-bottom:25px;
+}
+
+.finance-card{
+    background:white;
+    padding:22px;
+    border-radius:14px;
+    box-shadow:var(--shadow);
+}
+
+.finance-card h3{
+    font-size:14px;
+    color:var(--muted);
+    margin-bottom:8px;
+}
+
+.finance-card strong{
+    font-size:24px;
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.section{
+    display:none;
+}
+
+.section.active{
+    display:block;
+}
+
+.panel{
+    background:white;
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:22px;
+    margin-bottom:20px;
+}
+
+.panel-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.panel-header h3{
+    font-size:18px;
+}
+
+/* =========================
+   FILTERS
+========================= */
+
+.filters{
+    display:grid;
+    grid-template-columns:2fr 1fr 1fr 1fr 1fr;
+    gap:10px;
+    margin-bottom:18px;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:11px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:14px;
+    outline:none;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+    border-color:var(--primary);
+}
+
+textarea{
+    min-height:90px;
+    resize:vertical;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-container{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:#f8fafc;
+    color:#64748b;
+    font-size:12px;
+    text-align:left;
+    padding:13px;
+    border-bottom:1px solid var(--border);
+}
+
+td{
+    padding:13px;
+    border-bottom:1px solid var(--border);
+    font-size:14px;
+}
+
+tr:hover{
+    background:#f8fafc;
+}
+
+.actions{
+    display:flex;
+    gap:5px;
+    flex-wrap:wrap;
+}
+
+.action-btn{
+    border:0;
+    padding:7px 9px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.view{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+.edit{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.delete{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.badge{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.badge-entry{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.badge-exit{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+.badge-stock{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+.badge-low{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.badge-fornecedor{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+.badge-cliente{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.badge-ambos{
+    background:#f3e8ff;
+    color:#7e22ce;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.65);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+    padding:20px;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    background:white;
+    width:100%;
+    max-width:850px;
+    max-height:90vh;
+    overflow-y:auto;
+    border-radius:15px;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+
+.modal-header{
+    padding:20px 22px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.modal-header h3{
+    font-size:20px;
+}
+
+.close{
+    border:0;
+    background:transparent;
+    font-size:26px;
+    cursor:pointer;
+    color:#64748b;
+}
+
+.modal-body{
+    padding:22px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.form-group{
+    margin-bottom:3px;
+}
+
+.form-group.full{
+    grid-column:1/-1;
+}
+
+.form-group label{
+    display:block;
+    font-size:13px;
+    font-weight:bold;
+    margin-bottom:6px;
+}
+
+.modal-footer{
+    padding:18px 22px;
+    border-top:1px solid var(--border);
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+}
+
+/* =========================
+   ITEMS NF
+========================= */
+
+.items-box{
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:15px;
+    margin-top:10px;
+}
+
+.item-row{
+    display:grid;
+    grid-template-columns:2fr 100px 130px 130px 40px;
+    gap:8px;
+    align-items:center;
+    margin-bottom:8px;
+}
+
+.item-row strong{
+    text-align:right;
+}
+
+.total-box{
+    text-align:right;
+    font-size:20px;
+    font-weight:bold;
+    margin-top:15px;
+}
+
+/* =========================
+   DETAIL
+========================= */
+
+.detail-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.detail-item{
+    background:#f8fafc;
+    padding:13px;
+    border-radius:8px;
+}
+
+.detail-item small{
+    display:block;
+    color:#64748b;
+    margin-bottom:4px;
+}
+
+.detail-item strong{
+    font-size:14px;
+}
+
+/* =========================
+   EMPTY
+========================= */
+
+.empty{
+    text-align:center;
+    padding:45px;
+    color:#64748b;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:1100px){
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .filters{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .item-row{
+        grid-template-columns:1fr 90px 120px 110px 40px;
+    }
+
+}
+
+@media(max-width:800px){
+
+    .sidebar{
+        width:220px;
+    }
+
+    .main{
+        margin-left:220px;
+        width:calc(100% - 220px);
+        padding:20px;
+    }
+
+    .finance{
+        grid-template-columns:1fr;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:600px){
+
+    .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+    }
+
+    .app{
+        display:block;
+    }
+
+    .main{
+        margin-left:0;
+        width:100%;
+        padding:15px;
+    }
+
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+    .filters{
+        grid-template-columns:1fr;
+    }
+
+    .topbar{
+        align-items:flex-start;
+        gap:10px;
+        flex-direction:column;
+    }
+
+    .item-row{
+        grid-template-columns:1fr;
+        padding:10px;
+        background:#f8fafc;
+        border-radius:8px;
+    }
+
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    background:#0f172a;
+    color:white;
+    padding:14px 18px;
+    border-radius:8px;
+    display:none;
+    z-index:2000;
+}
+
+.toast.show{
+    display:block;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- ==================================================
+     SIDEBAR
+================================================== -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+        <h1>NF <span>Control</span></h1>
+        <p>Gestão empresarial</p>
+    </div>
+
+    <div class="menu">
+
+        <div class="menu-title">Principal</div>
+
+        <button class="active" onclick="mostrarDashboard()" id="menuDashboard">
+            📊 Dashboard
+        </button>
+
+        <button onclick="mostrarNotas('entrada')" id="menuEntrada">
+            📥 Entrada de NF
+        </button>
+
+        <button onclick="mostrarNotas('saida')" id="menuSaida">
+            📤 Saída de NF
+        </button>
+
+        <button onclick="mostrarNotas()" id="menuNotas">
+            🧾 Notas Fiscais
+        </button>
+
+        <div class="menu-title">Cadastros</div>
+
+        <button onclick="mostrarEmpresas()" id="menuEmpresas">
+            🏢 Empresas
+        </button>
+
+        <button onclick="abrirModalEmpresa()">
+            ➕ Nova Empresa
+        </button>
+
+        <button onclick="mostrarProdutos()" id="menuProdutos">
+            📦 Produtos / Estoque
+        </button>
+
+        <button onclick="abrirModalProduto()">
+            ➕ Novo Produto
+        </button>
+
+    </div>
+
+</aside>
+
+
+<!-- ==================================================
+     MAIN
+================================================== -->
+
+<main class="main">
+
+
+<!-- ==================================================
+     DASHBOARD
+================================================== -->
+
+<section id="dashboard" class="section active">
+
+    <div class="topbar">
+
+        <div>
+            <h2>Dashboard</h2>
+            <p>Visão geral da movimentação da empresa</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="abrirModalNota()">
+            + Nova Nota Fiscal
+        </button>
+
+    </div>
+
+
+    <div class="cards">
+
+        <div class="card blue">
+            <div class="card-title">Notas de Entrada</div>
+            <div class="card-value" id="totalEntradas">0</div>
+        </div>
+
+        <div class="card red">
+            <div class="card-title">Notas de Saída</div>
+            <div class="card-value" id="totalSaidas">0</div>
+        </div>
+
+        <div class="card orange">
+            <div class="card-title">Total de Notas</div>
+            <div class="card-value" id="totalNotas">0</div>
+        </div>
+
+        <div class="card green">
+            <div class="card-title">Empresas</div>
+            <div class="card-value" id="totalEmpresas">0</div>
+        </div>
+
+    </div>
+
+
+    <div class="cards">
+
+        <div class="card blue">
+            <div class="card-title">Produtos Cadastrados</div>
+            <div class="card-value" id="totalProdutos">0</div>
+        </div>
+
+        <div class="card green">
+            <div class="card-title">Itens em Estoque</div>
+            <div class="card-value" id="totalEstoque">0</div>
+        </div>
+
+        <div class="card orange">
+            <div class="card-title">Empresas Fornecedoras</div>
+            <div class="card-value" id="totalFornecedores">0</div>
+        </div>
+
+        <div class="card blue">
+            <div class="card-title">Empresas Clientes</div>
+            <div class="card-value" id="totalClientes">0</div>
+        </div>
+
+    </div>
+
+
+    <div class="finance">
+
+        <div class="finance-card">
+            <h3>Total de Entradas</h3>
+            <strong id="valorEntradas">R$ 0,00</strong>
+        </div>
+
+        <div class="finance-card">
+            <h3>Total de Saídas</h3>
+            <strong id="valorSaidas">R$ 0,00</strong>
+        </div>
+
+        <div class="finance-card">
+            <h3>Saldo Financeiro</h3>
+            <strong id="saldoFinanceiro">R$ 0,00</strong>
+        </div>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <h3>Últimas Notas Fiscais</h3>
+
+            <button class="btn btn-light" onclick="mostrarNotas()">
+                Ver todas
+            </button>
+
+        </div>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>NF</th>
+                        <th>Tipo</th>
+                        <th>Empresa</th>
+                        <th>Data</th>
+                        <th>Total</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="ultimasNotas"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ==================================================
+     NOTAS
+================================================== -->
+
+<section id="notas" class="section">
+
+    <div class="topbar">
+
+        <div>
+            <h2>Notas Fiscais</h2>
+            <p>Controle de entradas e saídas</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="abrirModalNota()">
+            + Nova Nota
+        </button>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="filters">
+
+            <input
+                type="text"
+                id="filtroBusca"
+                placeholder="Buscar NF ou empresa..."
+                oninput="aplicarFiltros()"
+            >
+
+            <select id="filtroTipo" onchange="aplicarFiltros()">
+
+                <option value="">Todos os tipos</option>
+                <option value="entrada">Entrada</option>
+                <option value="saida">Saída</option>
+
+            </select>
+
+            <select id="filtroEmpresa" onchange="aplicarFiltros()">
+
+                <option value="">Todas as empresas</option>
+
+            </select>
+
+            <input
+                type="date"
+                id="filtroDataInicial"
+                onchange="aplicarFiltros()"
+            >
+
+            <input
+                type="date"
+                id="filtroDataFinal"
+                onchange="aplicarFiltros()"
+            >
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>NF</th>
+                        <th>Tipo</th>
+                        <th>Empresa</th>
+                        <th>Data</th>
+                        <th>Itens</th>
+                        <th>Total</th>
+                        <th>Ações</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="tabelaNotas"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ==================================================
+     EMPRESAS
+================================================== -->
+
+<section id="empresas" class="section">
+
+    <div class="topbar">
+
+        <div>
+            <h2>Empresas</h2>
+            <p>Fornecedores e clientes cadastrados</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="abrirModalEmpresa()">
+            + Nova Empresa
+        </button>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="filters" style="grid-template-columns:2fr 1fr 1fr;">
+
+            <input
+                type="text"
+                id="buscaEmpresa"
+                placeholder="Buscar por nome, fantasia ou CNPJ..."
+                oninput="renderizarEmpresas()"
+            >
+
+            <select id="filtroTipoEmpresa" onchange="renderizarEmpresas()">
+
+                <option value="">Todos</option>
+                <option value="fornecedor">Fornecedor</option>
+                <option value="cliente">Cliente</option>
+                <option value="ambos">Ambos</option>
+
+            </select>
+
+            <button class="btn btn-light" onclick="limparFiltroEmpresa()">
+                Limpar filtros
+            </button>
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Empresa</th>
+                        <th>CNPJ</th>
+                        <th>Tipo</th>
+                        <th>Telefone</th>
+                        <th>Notas</th>
+                        <th>Ações</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="tabelaEmpresas"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ==================================================
+     PRODUTOS
+================================================== -->
+
+<section id="produtos" class="section">
+
+    <div class="topbar">
+
+        <div>
+            <h2>Produtos / Estoque</h2>
+            <p>Controle dos produtos da empresa</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="abrirModalProduto()">
+            + Novo Produto
+        </button>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="filters" style="grid-template-columns:2fr 1fr;">
+
+            <input
+                type="text"
+                id="buscaProduto"
+                placeholder="Buscar produto..."
+                oninput="renderizarProdutos()"
+            >
+
+            <select id="filtroEstoque" onchange="renderizarProdutos()">
+
+                <option value="">Todos</option>
+                <option value="normal">Estoque normal</option>
+                <option value="baixo">Estoque baixo</option>
+
+            </select>
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Código</th>
+                        <th>Produto</th>
+                        <th>Unidade</th>
+                        <th>Estoque</th>
+                        <th>Preço</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="tabelaProdutos"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+</div>
+
+
+<!-- ==================================================
+     MODAL EMPRESA
+================================================== -->
+
+<div class="modal" id="modalEmpresa">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h3 id="tituloModalEmpresa">
+                Nova Empresa
+            </h3>
+
+            <button class="close" onclick="fecharModalEmpresa()">
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <input type="hidden" id="empresaEditando">
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Razão Social *</label>
+
+                    <input
+                        type="text"
+                        id="empresaRazao"
+                        placeholder="Razão social"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Nome Fantasia</label>
+
+                    <input
+                        type="text"
+                        id="empresaFantasia"
+                        placeholder="Nome fantasia"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>CNPJ *</label>
+
+                    <input
+                        type="text"
+                        id="empresaCnpj"
+                        placeholder="00.000.000/0000-00"
+                        maxlength="18"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Tipo *</label>
+
+                    <select id="empresaTipo">
+
+                        <option value="fornecedor">
+                            Fornecedor
+                        </option>
+
+                        <option value="cliente">
+                            Cliente
+                        </option>
+
+                        <option value="ambos">
+                            Fornecedor e Cliente
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Telefone</label>
+
+                    <input
+                        type="text"
+                        id="empresaTelefone"
+                        placeholder="(11) 99999-9999"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>E-mail</label>
+
+                    <input
+                        type="email"
+                        id="empresaEmail"
+                        placeholder="empresa@email.com"
+                    >
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>Endereço</label>
+
+                    <input
+                        type="text"
+                        id="empresaEndereco"
+                        placeholder="Rua, número, bairro, cidade..."
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="btn btn-light"
+                onclick="fecharModalEmpresa()"
+            >
+                Cancelar
+            </button>
+
+            <button
+                class="btn btn-primary"
+                onclick="salvarEmpresa()"
+            >
+                Salvar Empresa
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+     MODAL NOTA
+================================================== -->
+
+<div class="modal" id="modalNota">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h3 id="tituloModalNota">
+                Nova Nota Fiscal
+            </h3>
+
+            <button class="close" onclick="fecharModalNota()">
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <input type="hidden" id="notaEditando">
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Número da NF *</label>
+
+                    <input
+                        type="text"
+                        id="notaNumero"
+                        placeholder="Ex.: 000123"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Tipo *</label>
+
+                    <select id="notaTipo">
+
+                        <option value="entrada">
+                            Entrada
+                        </option>
+
+                        <option value="saida">
+                            Saída
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Data *</label>
+
+                    <input
+                        type="date"
+                        id="notaData"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Empresa *</label>
+
+                    <select id="notaEmpresa">
+
+                        <option value="">
+                            Selecione uma empresa
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        onclick="abrirModalEmpresa(true)"
+                    >
+                        + Cadastrar empresa rapidamente
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="items-box">
+
+                <div class="panel-header">
+
+                    <h3>Produtos da Nota</h3>
+
+                    <button
+                        type="button"
+                        class="btn btn-success"
+                        onclick="adicionarItem()"
+                    >
+                        + Adicionar Produto
+                    </button>
+
+                </div>
+
+
+                <div id="listaItens"></div>
+
+
+                <div class="total-box">
+
+                    Total:
+                    <span id="totalNota">
+                        R$ 0,00
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div style="margin-top:18px;">
+
+                <label style="display:block;font-weight:bold;font-size:13px;margin-bottom:6px;">
+                    Observações
+                </label>
+
+                <textarea
+                    id="notaObservacoes"
+                    placeholder="Observações da nota..."
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="btn btn-light"
+                onclick="fecharModalNota()"
+            >
+                Cancelar
+            </button>
+
+            <button
+                class="btn btn-primary"
+                onclick="salvarNota()"
+            >
+                Salvar Nota
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+     MODAL PRODUTO
+================================================== -->
+
+<div class="modal" id="modalProduto">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h3 id="tituloModalProduto">
+                Novo Produto
+            </h3>
+
+            <button class="close" onclick="fecharModalProduto()">
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <input type="hidden" id="produtoEditando">
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Código *</label>
+
+                    <input
+                        type="text"
+                        id="produtoCodigo"
+                        placeholder="Ex.: AR001"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Nome *</label>
+
+                    <input
+                        type="text"
+                        id="produtoNome"
+                        placeholder="Nome do produto"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Unidade</label>
+
+                    <select id="produtoUnidade">
+
+                        <option value="UN">UN</option>
+                        <option value="KG">KG</option>
+                        <option value="G">G</option>
+                        <option value="L">L</option>
+                        <option value="ML">ML</option>
+                        <option value="CX">CX</option>
+                        <option value="PCT">PCT</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Estoque Inicial</label>
+
+                    <input
+                        type="number"
+                        id="produtoEstoque"
+                        min="0"
+                        step="0.01"
+                        value="0"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Preço Padrão</label>
+
+                    <input
+                        type="number"
+                        id="produtoPreco"
+                        min="0"
+                        step="0.01"
+                        value="0"
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="btn btn-light"
+                onclick="fecharModalProduto()"
+            >
+                Cancelar
+            </button>
+
+            <button
+                class="btn btn-primary"
+                onclick="salvarProduto()"
+            >
+                Salvar Produto
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+     MODAL DETALHES
+================================================== -->
+
+<div class="modal" id="modalDetalhes">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h3>Detalhes</h3>
+
+            <button class="close" onclick="fecharDetalhes()">
+                ×
+            </button>
+
+        </div>
+
+        <div class="modal-body" id="conteudoDetalhes"></div>
+
+        <div class="modal-footer">
+
+            <button
+                class="btn btn-light"
+                onclick="fecharDetalhes()"
+            >
+                Fechar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* =====================================================
+   DADOS
+===================================================== */
+
+let notas = JSON.parse(
+    localStorage.getItem("notasFiscais") || "[]"
+);
+
+let produtos = JSON.parse(
+    localStorage.getItem("produtos") || "[]"
+);
+
+let empresas = JSON.parse(
+    localStorage.getItem("empresas") || "[]"
+);
+
+let itensTemporarios = [];
+
+let proximoIdNota = notas.length
+    ? Math.max(...notas.map(n => Number(n.id) || 0)) + 1
+    : 1;
+
+let proximoIdProduto = produtos.length
+    ? Math.max(...produtos.map(p => Number(p.id) || 0)) + 1
+    : 1;
+
+let proximoIdEmpresa = empresas.length
+    ? Math.max(...empresas.map(e => Number(e.id) || 0)) + 1
+    : 1;
+
+
+/* =====================================================
+   SALVAR
+===================================================== */
+
+function salvarDados(){
+
+    localStorage.setItem(
+        "notasFiscais",
+        JSON.stringify(notas)
+    );
+
+    localStorage.setItem(
+        "produtos",
+        JSON.stringify(produtos)
+    );
+
+    localStorage.setItem(
+        "empresas",
+        JSON.stringify(empresas)
+    );
+
+    atualizarDashboard();
+
+}
+
+
+/* =====================================================
+   UTILITÁRIOS
+===================================================== */
+
+function formatarMoeda(valor){
+
+    return Number(valor || 0).toLocaleString(
+        "pt-BR",
+        {
+            style:"currency",
+            currency:"BRL"
+        }
+    );
+
+}
+
+
+function formatarData(data){
+
+    if(!data) return "-";
+
+    const partes = data.split("-");
+
+    if(partes.length !== 3){
+        return data;
+    }
+
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+}
+
+
+function escaparHTML(valor){
+
+    return String(valor ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+function mostrarToast(mensagem){
+
+    const toast = document.getElementById("toast");
+
+    toast.textContent = mensagem;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    },3000);
+
+}
+
+
+/* =====================================================
+   NAVEGAÇÃO
+===================================================== */
+
+function esconderSections(){
+
+    document.querySelectorAll(".section")
+        .forEach(section => {
+            section.classList.remove("active");
+        });
+
+    document.querySelectorAll(".menu button")
+        .forEach(button => {
+            button.classList.remove("active");
+        });
+
+}
+
+
+function mostrarDashboard(){
+
+    esconderSections();
+
+    document.getElementById("dashboard")
+        .classList.add("active");
+
+    document.getElementById("menuDashboard")
+        .classList.add("active");
+
+    atualizarDashboard();
+
+}
+
+
+function mostrarNotas(tipo=""){
+
+    esconderSections();
+
+    document.getElementById("notas")
+        .classList.add("active");
+
+    if(tipo === "entrada"){
+
+        document.getElementById("menuEntrada")
+            .classList.add("active");
+
+        document.getElementById("filtroTipo").value =
+            "entrada";
+
+    }
+    else if(tipo === "saida"){
+
+        document.getElementById("menuSaida")
+            .classList.add("active");
+
+        document.getElementById("filtroTipo").value =
+            "saida";
+
+    }
+    else{
+
+        document.getElementById("menuNotas")
+            .classList.add("active");
+
+    }
+
+    atualizarSelectEmpresas();
+    aplicarFiltros();
+
+}
+
+
+function mostrarEmpresas(){
+
+    esconderSections();
+
+    document.getElementById("empresas")
+        .classList.add("active");
+
+    document.getElementById("menuEmpresas")
+        .classList.add("active");
+
+    renderizarEmpresas();
+
+}
+
+
+function mostrarProdutos(){
+
+    esconderSections();
+
+    document.getElementById("produtos")
+        .classList.add("active");
+
+    document.getElementById("menuProdutos")
+        .classList.add("active");
+
+    renderizarProdutos();
+
+}
+
+
+/* =====================================================
+   DASHBOARD
+===================================================== */
+
+function atualizarDashboard(){
+
+    const entradas = notas.filter(
+        n => n.tipo === "entrada"
+    );
+
+    const saidas = notas.filter(
+        n => n.tipo === "saida"
+    );
+
+
+    document.getElementById("totalEntradas")
+        .textContent = entradas.length;
+
+    document.getElementById("totalSaidas")
+        .textContent = saidas.length;
+
+    document.getElementById("totalNotas")
+        .textContent = notas.length;
+
+    document.getElementById("totalEmpresas")
+        .textContent = empresas.length;
+
+    document.getElementById("totalProdutos")
+        .textContent = produtos.length;
+
+
+    const estoqueTotal = produtos.reduce(
+        (total,p) => total + Number(p.estoque || 0),
+        0
+    );
+
+    document.getElementById("totalEstoque")
+        .textContent = estoqueTotal;
+
+
+    const fornecedores = empresas.filter(
+        e => e.tipo === "fornecedor" || e.tipo === "ambos"
+    );
+
+    const clientes = empresas.filter(
+        e => e.tipo === "cliente" || e.tipo === "ambos"
+    );
+
+
+    document.getElementById("totalFornecedores")
+        .textContent = fornecedores.length;
+
+    document.getElementById("totalClientes")
+        .textContent = clientes.length;
+
+
+    const valorEntrada = entradas.reduce(
+        (total,n) => total + Number(n.total || 0),
+        0
+    );
+
+    const valorSaida = saidas.reduce(
+        (total,n) => total + Number(n.total || 0),
+        0
+    );
+
+
+    document.getElementById("valorEntradas")
+        .textContent = formatarMoeda(valorEntrada);
+
+    document.getElementById("valorSaidas")
+        .textContent = formatarMoeda(valorSaida);
+
+    document.getElementById("saldoFinanceiro")
+        .textContent = formatarMoeda(
+            valorEntrada - valorSaida
+        );
+
+
+    renderizarUltimasNotas();
+
+    atualizarSelectEmpresas();
+
+}
+
+
+/* =====================================================
+   ÚLTIMAS NOTAS
+===================================================== */
+
+function renderizarUltimasNotas(){
+
+    const tbody =
+        document.getElementById("ultimasNotas");
+
+    const lista = [...notas]
+        .sort((a,b) => Number(b.id) - Number(a.id))
+        .slice(0,5);
+
+
+    if(!lista.length){
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty">
+                    Nenhuma nota cadastrada.
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML = lista.map(n => {
+
+        const empresa = obterEmpresaDaNota(n);
+
+        return `
+
+            <tr>
+
+                <td>${escaparHTML(n.numero)}</td>
+
+                <td>
+                    ${
+                        n.tipo === "entrada"
+                        ? `<span class="badge badge-entry">Entrada</span>`
+                        : `<span class="badge badge-exit">Saída</span>`
+                    }
+                </td>
+
+                <td>
+                    ${escaparHTML(empresa.nome)}
+                </td>
+
+                <td>
+                    ${formatarData(n.data)}
+                </td>
+
+                <td>
+                    ${formatarMoeda(n.total)}
+                </td>
+
+            </tr>
+
+        `;
+
+    }).join("");
+
+}
+
+
+/* =====================================================
+   EMPRESAS
+===================================================== */
+
+function obterEmpresaDaNota(nota){
+
+    if(nota.empresaId){
+
+        const empresa = empresas.find(
+            e => Number(e.id) === Number(nota.empresaId)
+        );
+
+        if(empresa){
+
+            return {
+                nome:
+                    empresa.nomeFantasia ||
+                    empresa.razaoSocial ||
+                    "Empresa",
+                cnpj:
+                    empresa.cnpj || ""
+            };
+
+        }
+
+    }
+
+
+    return {
+        nome: nota.empresa || "Não informada",
+        cnpj: nota.cnpj || ""
+    };
+
+}
+
+
+/* =====================================================
+   MODAL EMPRESA
+===================================================== */
+
+function abrirModalEmpresa(retornarParaNota=false){
+
+    document.getElementById("modalEmpresa")
+        .classList.add("show");
+
+    document.getElementById("empresaEditando")
+        .value = "";
+
+    document.getElementById("tituloModalEmpresa")
+        .textContent = "Nova Empresa";
+
+    document.getElementById("empresaRazao").value = "";
+    document.getElementById("empresaFantasia").value = "";
+    document.getElementById("empresaCnpj").value = "";
+    document.getElementById("empresaTipo").value = "fornecedor";
+    document.getElementById("empresaTelefone").value = "";
+    document.getElementById("empresaEmail").value = "";
+    document.getElementById("empresaEndereco").value = "";
+
+}
+
+
+function fecharModalEmpresa(){
+
+    document.getElementById("modalEmpresa")
+        .classList.remove("show");
+
+}
+
+
+function salvarEmpresa(){
+
+    const razao =
+        document.getElementById("empresaRazao")
+        .value.trim();
+
+    const fantasia =
+        document.getElementById("empresaFantasia")
+        .value.trim();
+
+    const cnpj =
+        document.getElementById("empresaCnpj")
+        .value.trim();
+
+    const tipo =
+        document.getElementById("empresaTipo")
+        .value;
+
+    const telefone =
+        document.getElementById("empresaTelefone")
+        .value.trim();
+
+    const email =
+        document.getElementById("empresaEmail")
+        .value.trim();
+
+    const endereco =
+        document.getElementById("empresaEndereco")
+        .value.trim();
+
+    const editando =
+        document.getElementById("empresaEditando")
+        .value;
+
+
+    if(!razao){
+
+        alert("Informe a Razão Social.");
+
+        return;
+
+    }
+
+
+    if(!cnpj){
+
+        alert("Informe o CNPJ.");
+
+        return;
+
+    }
+
+
+    const cnpjDuplicado = empresas.find(
+        e =>
+            e.cnpj === cnpj &&
+            Number(e.id) !== Number(editando)
+    );
+
+
+    if(cnpjDuplicado){
+
+        alert("Já existe uma empresa cadastrada com este CNPJ.");
+
+        return;
+
+    }
+
+
+    if(editando){
+
+        const empresa = empresas.find(
+            e => Number(e.id) === Number(editando)
+        );
+
+        if(!empresa) return;
+
+        empresa.razaoSocial = razao;
+        empresa.nomeFantasia = fantasia;
+        empresa.cnpj = cnpj;
+        empresa.tipo = tipo;
+        empresa.telefone = telefone;
+        empresa.email = email;
+        empresa.endereco = endereco;
+
+        mostrarToast("Empresa atualizada.");
+
+    }
+    else{
+
+        empresas.push({
+
+            id:proximoIdEmpresa++,
+
+            razaoSocial:razao,
+
+            nomeFantasia:fantasia,
+
+            cnpj:cnpj,
+
+            tipo:tipo,
+
+            telefone:telefone,
+
+            email:email,
+
+            endereco:endereco,
+
+            criadaEm:new Date().toISOString()
+
+        });
+
+        mostrarToast("Empresa cadastrada.");
+
+    }
+
+
+    salvarDados();
+
+    fecharModalEmpresa();
+
+    renderizarEmpresas();
+
+    atualizarSelectEmpresas();
+
+}
+
+
+/* =====================================================
+   RENDER EMPRESAS
+===================================================== */
+
+function renderizarEmpresas(){
+
+    const tbody =
+        document.getElementById("tabelaEmpresas");
+
+    if(!tbody) return;
+
+
+    const busca =
+        (document.getElementById("buscaEmpresa")?.value || "")
+        .toLowerCase()
+        .trim();
+
+    const tipo =
+        document.getElementById("filtroTipoEmpresa")?.value || "";
+
+
+    const lista = empresas.filter(e => {
+
+        const texto = `
+            ${e.razaoSocial}
+            ${e.nomeFantasia}
+            ${e.cnpj}
+            ${e.telefone}
+        `.toLowerCase();
+
+
+        const encontrouBusca =
+            !busca || texto.includes(busca);
+
+        const encontrouTipo =
+            !tipo || e.tipo === tipo;
+
+
+        return encontrouBusca && encontrouTipo;
+
+    });
+
+
+    if(!lista.length){
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="6" class="empty">
+
+                    Nenhuma empresa encontrada.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML = lista.map(e => {
+
+        const quantidadeNotas =
+            notas.filter(
+                n => Number(n.empresaId) === Number(e.id)
+            ).length;
+
+
+        let tipoTexto = "Fornecedor";
+        let tipoClasse = "badge-fornecedor";
+
+        if(e.tipo === "cliente"){
+
+            tipoTexto = "Cliente";
+            tipoClasse = "badge-cliente";
+
+        }
+
+        if(e.tipo === "ambos"){
+
+            tipoTexto = "Fornecedor e Cliente";
+            tipoClasse = "badge-ambos";
+
+        }
+
+
+        return `
+
+            <tr>
+
+                <td>
+
+                    <strong>
+                        ${escaparHTML(
+                            e.nomeFantasia ||
+                            e.razaoSocial
+                        )}
+                    </strong>
+
+                    ${
+                        e.nomeFantasia &&
+                        e.nomeFantasia !== e.razaoSocial
+                        ?
+                        `<br>
+                         <small style="color:#64748b">
+                            ${escaparHTML(e.razaoSocial)}
+                         </small>`
+                        :
+                        ""
+                    }
+
+                </td>
+
+                <td>
+                    ${escaparHTML(e.cnpj)}
+                </td>
+
+                <td>
+
+                    <span class="badge ${tipoClasse}">
+                        ${tipoTexto}
+                    </span>
+
+                </td>
+
+                <td>
+                    ${escaparHTML(e.telefone || "-")}
+                </td>
+
+                <td>
+                    ${quantidadeNotas}
+                </td>
+
+                <td>
+
+                    <div class="actions">
+
+                        <button
+                            class="action-btn view"
+                            onclick="visualizarEmpresa(${e.id})"
+                        >
+                            Ver
+                        </button>
+
+                        <button
+                            class="action-btn edit"
+                            onclick="editarEmpresa(${e.id})"
+                        >
+                            Editar
+                        </button>
+
+                        <button
+                            class="action-btn delete"
+                            onclick="excluirEmpresa(${e.id})"
+                        >
+                            Excluir
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }).join("");
+
+}
+
+
+/* =====================================================
+   EDITAR EMPRESA
+===================================================== */
+
+function editarEmpresa(id){
+
+    const empresa = empresas.find(
+        e => Number(e.id) === Number(id)
+    );
+
+    if(!empresa) return;
+
+
+    document.getElementById("empresaEditando")
+        .value = empresa.id;
+
+    document.getElementById("tituloModalEmpresa")
+        .textContent = "Editar Empresa";
+
+    document.getElementById("empresaRazao")
+        .value = empresa.razaoSocial || "";
+
+    document.getElementById("empresaFantasia")
+        .value = empresa.nomeFantasia || "";
+
+    document.getElementById("empresaCnpj")
+        .value = empresa.cnpj || "";
+
+    document.getElementById("empresaTipo")
+        .value = empresa.tipo || "fornecedor";
+
+    document.getElementById("empresaTelefone")
+        .value = empresa.telefone || "";
+
+    document.getElementById("empresaEmail")
+        .value = empresa.email || "";
+
+    document.getElementById("empresaEndereco")
+        .value = empresa.endereco || "";
+
+
+    document.getElementById("modalEmpresa")
+        .classList.add("show");
+
+}
+
+
+/* =====================================================
+   VISUALIZAR EMPRESA
+===================================================== */
+
+function visualizarEmpresa(id){
+
+    const empresa = empresas.find(
+        e => Number(e.id) === Number(id)
+    );
+
+    if(!empresa) return;
+
+
+    const notasEmpresa = notas.filter(
+        n => Number(n.empresaId) === Number(id)
+    );
+
+
+    const tipoTexto =
+        empresa.tipo === "fornecedor"
+        ? "Fornecedor"
+        : empresa.tipo === "cliente"
+        ? "Cliente"
+        : "Fornecedor e Cliente";
+
+
+    document.getElementById("conteudoDetalhes")
+        .innerHTML = `
+
+        <h2 style="margin-bottom:20px;">
+            ${escaparHTML(
+                empresa.nomeFantasia ||
+                empresa.razaoSocial
+            )}
+        </h2>
+
+        <div class="detail-grid">
+
+            <div class="detail-item">
+
+                <small>Razão Social</small>
+
+                <strong>
+                    ${escaparHTML(
+                        empresa.razaoSocial
+                    )}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+
+                <small>Nome Fantasia</small>
+
+                <strong>
+                    ${escaparHTML(
+                        empresa.nomeFantasia || "-"
+                    )}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+
+                <small>CNPJ</small>
+
+                <strong>
+                    ${escaparHTML(
+                        empresa.cnpj
+                    )}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+
+                <small>Tipo</small>
+
+                <strong>
+                    ${tipoTexto}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+
+                <small>Telefone</small>
+
+                <strong>
+                    ${escaparHTML(
+                        empresa.telefone || "-"
+                    )}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+
+                <small>E-mail</small>
+
+                <strong>
+                    ${escaparHTML(
+                        empresa.email || "-"
+                    )}
+                </strong>
+
+            </div>
+
+            <div class="detail-item" style="grid-column:1/-1">
+
+                <small>Endereço</small>
+
+                <strong>
+                    ${escaparHTML(
+                        empresa.endereco || "-"
+                    )}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <h3 style="margin-bottom:10px;">
+            Notas vinculadas: ${notasEmpresa.length}
+        </h3>
+
+        ${
+            notasEmpresa.length
+            ?
+            `<div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>NF</th>
+                            <th>Tipo</th>
+                            <th>Data</th>
+                            <th>Total</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        ${notasEmpresa.map(n => `
+
+                            <tr>
+
+                                <td>
+                                    ${escaparHTML(n.numero)}
+                                </td>
+
+                                <td>
+                                    ${
+                                        n.tipo === "entrada"
+                                        ? "Entrada"
+                                        : "Saída"
+                                    }
+                                </td>
+
+                                <td>
+                                    ${formatarData(n.data)}
+                                </td>
+
+                                <td>
+                                    ${formatarMoeda(n.total)}
+                                </td>
+
+                            </tr>
+
+                        `).join("")}
+
+                    </tbody>
+
+                </table>
+
+            </div>`
+            :
+            `<p style="color:#64748b">
+                Nenhuma nota vinculada.
+            </p>`
+        }
+
+    `;
+
+
+    document.getElementById("modalDetalhes")
+        .classList.add("show");
+
+}
+
+
+/* =====================================================
+   EXCLUIR EMPRESA
+===================================================== */
+
+function excluirEmpresa(id){
+
+    const possuiNotas = notas.some(
+        n => Number(n.empresaId) === Number(id)
+    );
+
+
+    if(possuiNotas){
+
+        alert(
+            "Esta empresa possui notas fiscais vinculadas. " +
+            "Não é possível excluí-la enquanto houver notas vinculadas."
+        );
+
+        return;
+
+    }
+
+
+    const empresa = empresas.find(
+        e => Number(e.id) === Number(id)
+    );
+
+    if(!empresa) return;
+
+
+    if(!confirm(
+        `Deseja excluir "${empresa.razaoSocial}"?`
+    )){
+
+        return;
+
+    }
+
+
+    empresas = empresas.filter(
+        e => Number(e.id) !== Number(id)
+    );
+
+
+    salvarDados();
+
+    renderizarEmpresas();
+
+    atualizarSelectEmpresas();
+
+    mostrarToast("Empresa excluída.");
+
+}
+
+
+/* =====================================================
+   FILTRO EMPRESA
+===================================================== */
+
+function limparFiltroEmpresa(){
+
+    document.getElementById("buscaEmpresa")
+        .value = "";
+
+    document.getElementById("filtroTipoEmpresa")
+        .value = "";
+
+    renderizarEmpresas();
+
+}
+
+
+/* =====================================================
+   SELECT EMPRESAS
+===================================================== */
+
+function atualizarSelectEmpresas(){
+
+    const select =
+        document.getElementById("notaEmpresa");
+
+    const filtro =
+        document.getElementById("filtroEmpresa");
+
+
+    if(select){
+
+        const valorAtual = select.value;
+
+        select.innerHTML = `
+
+            <option value="">
+                Selecione uma empresa
+            </option>
+
+            ${
+                empresas.map(e => `
+
+                    <option value="${e.id}">
+
+                        ${escaparHTML(
+                            e.nomeFantasia ||
+                            e.razaoSocial
+                        )}
+
+                        ${
+                            e.cnpj
+                            ? " - " + escaparHTML(e.cnpj)
+                            : ""
+                        }
+
+                    </option>
+
+                `).join("")
+            }
+
+        `;
+
+        if(valorAtual){
+            select.value = valorAtual;
+        }
+
+    }
+
+
+    if(filtro){
+
+        const valorAtual = filtro.value;
+
+        filtro.innerHTML = `
+
+            <option value="">
+                Todas as empresas
+            </option>
+
+            ${
+                empresas.map(e => `
+
+                    <option value="${e.id}">
+
+                        ${escaparHTML(
+                            e.nomeFantasia ||
+                            e.razaoSocial
+                        )}
+
+                    </option>
+
+                `).join("")
+            }
+
+        `;
+
+        if(valorAtual){
+            filtro.value = valorAtual;
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   MODAL NOTA
+===================================================== */
+
+function abrirModalNota(){
+
+    document.getElementById("modalNota")
+        .classList.add("show");
+
+    document.getElementById("notaEditando")
+        .value = "";
+
+    document.getElementById("tituloModalNota")
+        .textContent = "Nova Nota Fiscal";
+
+    document.getElementById("notaNumero")
+        .value = "";
+
+    document.getElementById("notaTipo")
+        .value = "entrada";
+
+    document.getElementById("notaData")
+        .value = new Date().toISOString().slice(0,10);
+
+    document.getElementById("notaEmpresa")
+        .value = "";
+
+    document.getElementById("notaObservacoes")
+        .value = "";
+
+    itensTemporarios = [];
+
+    atualizarSelectEmpresas();
+
+    document.getElementById("listaItens")
+        .innerHTML = "";
+
+    adicionarItem();
+
+    atualizarTotalNota();
+
+}
+
+
+function fecharModalNota(){
+
+    document.getElementById("modalNota")
+        .classList.remove("show");
+
+}
+
+
+/* =====================================================
+   ITENS
+===================================================== */
+
+function adicionarItem(){
+
+    itensTemporarios.push({
+
+        produtoId:"",
+
+        quantidade:1,
+
+        valorUnitario:0
+
+    });
+
+    renderizarItens();
+
+}
+
+
+function renderizarItens(){
+
+    const container =
+        document.getElementById("listaItens");
+
+
+    if(!itensTemporarios.length){
+
+        container.innerHTML = `
+
+            <div class="empty">
+                Nenhum produto adicionado.
+            </div>
+
+        `;
+
+        atualizarTotalNota();
+
+        return;
+
+    }
+
+
+    container.innerHTML = itensTemporarios.map(
+        (item,index) => `
+
+        <div class="item-row">
+
+            <select
+                onchange="produtoSelecionado(${index},this.value)"
+            >
+
+                <option value="">
+                    Selecione o produto
+                </option>
+
+                ${
+                    produtos.map(p => `
+
+                        <option
+                            value="${p.id}"
+                            ${
+                                Number(item.produtoId) === Number(p.id)
+                                ? "selected"
+                                : ""
+                            }
+                        >
+
+                            ${escaparHTML(p.codigo)}
+                            -
+                            ${escaparHTML(p.nome)}
+
+                            (${p.estoque} ${p.unidade})
+
+                        </option>
+
+                    `).join("")
+                }
+
+            </select>
+
+
+            <input
+                type="number"
+                min="0.01"
+                step="0.01"
+                value="${item.quantidade}"
+                onchange="alterarQuantidade(${index},this.value)"
+            >
+
+
+            <input
+                type="number"
+                min="0"
+                step="0.01"
+                value="${item.valorUnitario}"
+                onchange="alterarValor(${index},this.value)"
+            >
+
+
+            <strong>
+                ${formatarMoeda(
+                    Number(item.quantidade || 0) *
+                    Number(item.valorUnitario || 0)
+                )}
+            </strong>
+
+
+            <button
+                type="button"
+                class="action-btn delete"
+                onclick="removerItem(${index})"
+            >
+                ×
+            </button>
+
+        </div>
+
+    `).join("");
+
+}
+
+
+/* =====================================================
+   PRODUTO SELECIONADO
+===================================================== */
+
+function produtoSelecionado(index,id){
+
+    itensTemporarios[index].produtoId =
+        Number(id);
+
+    const produto = produtos.find(
+        p => Number(p.id) === Number(id)
+    );
+
+
+    if(produto){
+
+        itensTemporarios[index].valorUnitario =
+            Number(produto.preco || 0);
+
+    }
+
+
+    renderizarItens();
+
+}
+
+
+/* =====================================================
+   ALTERAR QUANTIDADE
+===================================================== */
+
+function alterarQuantidade(index,valor){
+
+    itensTemporarios[index].quantidade =
+        Number(valor || 0);
+
+    atualizarTotalNota();
+
+}
+
+
+/* =====================================================
+   ALTERAR VALOR
+===================================================== */
+
+function alterarValor(index,valor){
+
+    itensTemporarios[index].valorUnitario =
+        Number(valor || 0);
+
+    atualizarTotalNota();
+
+}
+
+
+/* =====================================================
+   REMOVER ITEM
+===================================================== */
+
+function removerItem(index){
+
+    itensTemporarios.splice(index,1);
+
+    renderizarItens();
+
+}
+
+
+/* =====================================================
+   TOTAL NOTA
+===================================================== */
+
+function atualizarTotalNota(){
+
+    const total =
+        itensTemporarios.reduce(
+            (soma,item) =>
+                soma +
+                Number(item.quantidade || 0) *
+                Number(item.valorUnitario || 0),
+            0
+        );
+
+
+    document.getElementById("totalNota")
+        .textContent = formatarMoeda(total);
+
+}
+
+
+/* =====================================================
+   OBTER ITENS
+===================================================== */
+
+function obterItens(){
+
+    return itensTemporarios
+        .filter(item => item.produtoId)
+        .map(item => {
+
+            const produto = produtos.find(
+                p => Number(p.id) === Number(item.produtoId)
+            );
+
+            return {
+
+                produtoId:Number(item.produtoId),
+
+                produto:produto
+                    ? produto.nome
+                    : "Produto",
+
+                quantidade:Number(
+                    item.quantidade || 0
+                ),
+
+                valorUnitario:Number(
+                    item.valorUnitario || 0
+                ),
+
+                subtotal:
+                    Number(item.quantidade || 0) *
+                    Number(item.valorUnitario || 0)
+
+            };
+
+        });
+
+}
+
+
+/* =====================================================
+   ESTOQUE
+===================================================== */
+
+function validarEstoque(itens){
+
+    for(const item of itens){
+
+        const produto = produtos.find(
+            p => Number(p.id) === Number(item.produtoId)
+        );
+
+        if(!produto){
+
+            return "Produto não encontrado.";
+
+        }
+
+
+        if(
+            document.getElementById("notaTipo").value === "saida" &&
+            Number(item.quantidade) >
+            Number(produto.estoque || 0)
+        ){
+
+            return `
+                Estoque insuficiente para:
+                ${produto.nome}.
+                Disponível: ${produto.estoque}.
+                Solicitado: ${item.quantidade}.
+            `;
+
+        }
+
+    }
+
+    return "";
+
+}
+
+
+/* =====================================================
+   MOVIMENTAR ESTOQUE
+===================================================== */
+
+function movimentarEstoque(itens,tipo){
+
+    itens.forEach(item => {
+
+        const produto = produtos.find(
+            p => Number(p.id) === Number(item.produtoId)
+        );
+
+        if(!produto) return;
+
+
+        if(tipo === "entrada"){
+
+            produto.estoque =
+                Number(produto.estoque || 0) +
+                Number(item.quantidade || 0);
+
+        }
+        else{
+
+            produto.estoque =
+                Number(produto.estoque || 0) -
+                Number(item.quantidade || 0);
+
+        }
+
+    });
+
+}
+
+
+/* =====================================================
+   DESFAZER MOVIMENTAÇÃO
+===================================================== */
+
+function desfazerMovimentacao(nota){
+
+    if(!nota.itens) return;
+
+
+    nota.itens.forEach(item => {
+
+        const produto = produtos.find(
+            p => Number(p.id) === Number(item.produtoId)
+        );
+
+        if(!produto) return;
+
+
+        if(nota.tipo === "entrada"){
+
+            produto.estoque =
+                Number(produto.estoque || 0) -
+                Number(item.quantidade || 0);
+
+        }
+        else{
+
+            produto.estoque =
+                Number(produto.estoque || 0) +
+                Number(item.quantidade || 0);
+
+        }
+
+    });
+
+}
+
+
+/* =====================================================
+   SALVAR NOTA
+===================================================== */
+
+function salvarNota(){
+
+    const numero =
+        document.getElementById("notaNumero")
+        .value.trim();
+
+    const tipo =
+        document.getElementById("notaTipo")
+        .value;
+
+    const data =
+        document.getElementById("notaData")
+        .value;
+
+    const empresaId =
+        Number(
+            document.getElementById("notaEmpresa")
+            .value
+        );
+
+    const observacoes =
+        document.getElementById("notaObservacoes")
+        .value.trim();
+
+    const editando =
+        document.getElementById("notaEditando")
+        .value;
+
+
+    if(!numero){
+
+        alert("Informe o número da nota.");
+
+        return;
+
+    }
+
+
+    if(!data){
+
+        alert("Informe a data.");
+
+        return;
+
+    }
+
+
+    if(!empresaId){
+
+        alert("Selecione uma empresa.");
+
+        return;
+
+    }
+
+
+    const itens = obterItens();
+
+
+    if(!itens.length){
+
+        alert("Adicione pelo menos um produto.");
+
+        return;
+
+    }
+
+
+    const estoqueErro =
+        validarEstoque(itens);
+
+
+    if(estoqueErro){
+
+        alert(estoqueErro);
+
+        return;
+
+    }
+
+
+    const total =
+        itens.reduce(
+            (soma,item) =>
+                soma + Number(item.subtotal || 0),
+            0
+        );
+
+
+    const empresa =
+        empresas.find(
+            e => Number(e.id) === Number(empresaId)
+        );
+
+
+    if(!empresa){
+
+        alert("Empresa não encontrada.");
+
+        return;
+
+    }
+
+
+    /* =========================================
+       EDIÇÃO
+    ========================================= */
+
+    if(editando){
+
+        const nota = notas.find(
+            n => Number(n.id) === Number(editando)
+        );
+
+        if(!nota) return;
+
+
+        /* desfaz estoque antigo */
+
+        desfazerMovimentacao(nota);
+
+
+        /* aplica estoque novo */
+
+        movimentarEstoque(itens,tipo);
+
+
+        nota.numero = numero;
+
+        nota.tipo = tipo;
+
+        nota.data = data;
+
+        nota.empresaId = empresaId;
+
+        nota.empresa =
+            empresa.nomeFantasia ||
+            empresa.razaoSocial;
+
+        nota.cnpj = empresa.cnpj;
+
+        nota.itens = itens;
+
+        nota.total = total;
+
+        nota.observacoes = observacoes;
+
+
+        mostrarToast("Nota atualizada.");
+
+    }
+
+    /* =========================================
+       NOVA NOTA
+    ========================================= */
+
+    else{
+
+        movimentarEstoque(itens,tipo);
+
+
+        notas.push({
+
+            id:proximoIdNota++,
+
+            numero:numero,
+
+            tipo:tipo,
+
+            data:data,
+
+            empresaId:empresaId,
+
+            empresa:
+                empresa.nomeFantasia ||
+                empresa.razaoSocial,
+
+            cnpj:empresa.cnpj,
+
+            itens:itens,
+
+            total:total,
+
+            observacoes:observacoes,
+
+            criadaEm:new Date().toISOString()
+
+        });
+
+
+        mostrarToast("Nota cadastrada.");
+
+    }
+
+
+    salvarDados();
+
+    fecharModalNota();
+
+    aplicarFiltros();
+
+    renderizarProdutos();
+
+}
+
+
+/* =====================================================
+   FILTROS NOTAS
+===================================================== */
+
+function aplicarFiltros(){
+
+    const tbody =
+        document.getElementById("tabelaNotas");
+
+    if(!tbody) return;
+
+
+    const busca =
+        (
+            document.getElementById("filtroBusca")
+            ?.value || ""
+        )
+        .toLowerCase()
+        .trim();
+
+
+    const tipo =
+        document.getElementById("filtroTipo")
+        ?.value || "";
+
+
+    const empresaId =
+        document.getElementById("filtroEmpresa")
+        ?.value || "";
+
+
+    const dataInicial =
+        document.getElementById("filtroDataInicial")
+        ?.value || "";
+
+
+    const dataFinal =
+        document.getElementById("filtroDataFinal")
+        ?.value || "";
+
+
+    const lista = notas.filter(n => {
+
+        const empresa =
+            obterEmpresaDaNota(n);
+
+
+        const texto = `
+            ${n.numero}
+            ${empresa.nome}
+            ${empresa.cnpj}
+        `.toLowerCase();
+
+
+        if(busca && !texto.includes(busca)){
+            return false;
+        }
+
+
+        if(tipo && n.tipo !== tipo){
+            return false;
+        }
+
+
+        if(
+            empresaId &&
+            Number(n.empresaId) !== Number(empresaId)
+        ){
+
+            return false;
+
+        }
+
+
+        if(dataInicial && n.data < dataInicial){
+            return false;
+        }
+
+
+        if(dataFinal && n.data > dataFinal){
+            return false;
+        }
+
+
+        return true;
+
+    });
+
+
+    renderizarNotas(lista);
+
+}
+
+
+/* =====================================================
+   RENDER NOTAS
+===================================================== */
+
+function renderizarNotas(lista){
+
+    const tbody =
+        document.getElementById("tabelaNotas");
+
+
+    if(!lista.length){
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="7" class="empty">
+
+                    Nenhuma nota encontrada.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML = lista.map(n => {
+
+        const empresa =
+            obterEmpresaDaNota(n);
+
+        const quantidadeItens =
+            n.itens
+            ? n.itens.length
+            : 0;
+
+
+        return `
+
+            <tr>
+
+                <td>
+                    <strong>
+                        ${escaparHTML(n.numero)}
+                    </strong>
+                </td>
+
+                <td>
+
+                    ${
+                        n.tipo === "entrada"
+                        ?
+                        `<span class="badge badge-entry">
+                            Entrada
+                         </span>`
+                        :
+                        `<span class="badge badge-exit">
+                            Saída
+                         </span>`
+                    }
+
+                </td>
+
+                <td>
+
+                    <strong>
+                        ${escaparHTML(empresa.nome)}
+                    </strong>
+
+                    <br>
+
+                    <small style="color:#64748b">
+                        ${escaparHTML(empresa.cnpj)}
+                    </small>
+
+                </td>
+
+                <td>
+                    ${formatarData(n.data)}
+                </td>
+
+                <td>
+                    ${quantidadeItens}
+                </td>
+
+                <td>
+                    <strong>
+                        ${formatarMoeda(n.total)}
+                    </strong>
+                </td>
+
+                <td>
+
+                    <div class="actions">
+
+                        <button
+                            class="action-btn view"
+                            onclick="visualizarNota(${n.id})"
+                        >
+                            Ver
+                        </button>
+
+                        <button
+                            class="action-btn edit"
+                            onclick="editarNota(${n.id})"
+                        >
+                            Editar
+                        </button>
+
+                        <button
+                            class="action-btn delete"
+                            onclick="excluirNota(${n.id})"
+                        >
+                            Excluir
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }).join("");
+
+}
+
+
+/* =====================================================
+   VISUALIZAR NOTA
+===================================================== */
+
+function visualizarNota(id){
+
+    const nota = notas.find(
+        n => Number(n.id) === Number(id)
+    );
+
+    if(!nota) return;
+
+
+    const empresa =
+        obterEmpresaDaNota(nota);
+
+
+    document.getElementById("conteudoDetalhes")
+        .innerHTML = `
+
+        <h2 style="margin-bottom:20px;">
+            Nota Fiscal ${escaparHTML(nota.numero)}
+        </h2>
+
+
+        <div class="detail-grid">
+
+            <div class="detail-item">
+
+                <small>Tipo</small>
+
+                <strong>
+                    ${
+                        nota.tipo === "entrada"
+                        ? "Entrada"
+                        : "Saída"
+                    }
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <small>Data</small>
+
+                <strong>
+                    ${formatarData(nota.data)}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <small>Empresa</small>
+
+                <strong>
+                    ${escaparHTML(empresa.nome)}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <small>CNPJ</small>
+
+                <strong>
+                    ${escaparHTML(empresa.cnpj)}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <h3 style="margin-bottom:10px;">
+            Produtos
+        </h3>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Produto</th>
+                        <th>Quantidade</th>
+                        <th>Valor Unit.</th>
+                        <th>Subtotal</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${
+                        (nota.itens || []).map(item => `
+
+                            <tr>
+
+                                <td>
+                                    ${escaparHTML(item.produto)}
+                                </td>
+
+                                <td>
+                                    ${item.quantidade}
+                                </td>
+
+                                <td>
+                                    ${formatarMoeda(
+                                        item.valorUnitario
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${formatarMoeda(
+                                        item.subtotal
+                                    )}
+                                </td>
+
+                            </tr>
+
+                        `).join("")
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <div class="total-box">
+
+            Total:
+            ${formatarMoeda(nota.total)}
+
+        </div>
+
+
+        ${
+            nota.observacoes
+            ?
+            `
+                <div style="margin-top:20px;">
+
+                    <strong>Observações</strong>
+
+                    <p style="margin-top:7px;color:#64748b;">
+                        ${escaparHTML(
+                            nota.observacoes
+                        )}
+                    </p>
+
+                </div>
+            `
+            :
+            ""
+        }
+
+    `;
+
+
+    document.getElementById("modalDetalhes")
+        .classList.add("show");
+
+}
+
+
+/* =====================================================
+   EDITAR NOTA
+===================================================== */
+
+function editarNota(id){
+
+    const nota = notas.find(
+        n => Number(n.id) === Number(id)
+    );
+
+    if(!nota) return;
+
+
+    document.getElementById("notaEditando")
+        .value = nota.id;
+
+    document.getElementById("tituloModalNota")
+        .textContent = "Editar Nota Fiscal";
+
+    document.getElementById("notaNumero")
+        .value = nota.numero || "";
+
+    document.getElementById("notaTipo")
+        .value = nota.tipo || "entrada";
+
+    document.getElementById("notaData")
+        .value = nota.data || "";
+
+    atualizarSelectEmpresas();
+
+
+    document.getElementById("notaEmpresa")
+        .value = nota.empresaId || "";
+
+    document.getElementById("notaObservacoes")
+        .value = nota.observacoes || "";
+
+
+    itensTemporarios =
+        (nota.itens || []).map(item => ({
+
+            produtoId:item.produtoId,
+
+            quantidade:Number(
+                item.quantidade || 0
+            ),
+
+            valorUnitario:Number(
+                item.valorUnitario || 0
+            )
+
+        }));
+
+
+    if(!itensTemporarios.length){
+
+        itensTemporarios.push({
+
+            produtoId:"",
+
+            quantidade:1,
+
+            valorUnitario:0
+
+        });
+
+    }
+
+
+    renderizarItens();
+
+    atualizarTotalNota();
+
+
+    document.getElementById("modalNota")
+        .classList.add("show");
+
+}
+
+
+/* =====================================================
+   EXCLUIR NOTA
+===================================================== */
+
+function excluirNota(id){
+
+    const nota = notas.find(
+        n => Number(n.id) === Number(id)
+    );
+
+    if(!nota) return;
+
+
+    if(!confirm(
+        `Deseja excluir a NF ${nota.numero}?`
+    )){
+
+        return;
+
+    }
+
+
+    desfazerMovimentacao(nota);
+
+
+    notas = notas.filter(
+        n => Number(n.id) !== Number(id)
+    );
+
+
+    salvarDados();
+
+    aplicarFiltros();
+
+    renderizarProdutos();
+
+    mostrarToast("Nota excluída e estoque corrigido.");
+
+}
+
+
+/* =====================================================
+   MODAL PRODUTO
+===================================================== */
+
+function abrirModalProduto(){
+
+    document.getElementById("modalProduto")
+        .classList.add("show");
+
+    document.getElementById("produtoEditando")
+        .value = "";
+
+    document.getElementById("tituloModalProduto")
+        .textContent = "Novo Produto";
+
+    document.getElementById("produtoCodigo")
+        .value = "";
+
+    document.getElementById("produtoNome")
+        .value = "";
+
+    document.getElementById("produtoUnidade")
+        .value = "UN";
+
+    document.getElementById("produtoEstoque")
+        .value = "0";
+
+    document.getElementById("produtoPreco")
+        .value = "0";
+
+}
+
+
+function fecharModalProduto(){
+
+    document.getElementById("modalProduto")
+        .classList.remove("show");
+
+}
+
+
+/* =====================================================
+   SALVAR PRODUTO
+===================================================== */
+
+function salvarProduto(){
+
+    const codigo =
+        document.getElementById("produtoCodigo")
+        .value.trim();
+
+    const nome =
+        document.getElementById("produtoNome")
+        .value.trim();
+
+    const unidade =
+        document.getElementById("produtoUnidade")
+        .value;
+
+    const estoque =
+        Number(
+            document.getElementById("produtoEstoque")
+            .value || 0
+        );
+
+    const preco =
+        Number(
+            document.getElementById("produtoPreco")
+            .value || 0
+        );
+
+    const editando =
+        document.getElementById("produtoEditando")
+        .value;
+
+
+    if(!codigo || !nome){
+
+        alert("Informe código e nome do produto.");
+
+        return;
+
+    }
+
+
+    if(editando){
+
+        const produto = produtos.find(
+            p => Number(p.id) === Number(editando)
+        );
+
+        if(!produto) return;
+
+
+        produto.codigo = codigo;
+        produto.nome = nome;
+        produto.unidade = unidade;
+        produto.estoque = estoque;
+        produto.preco = preco;
+
+
+        mostrarToast("Produto atualizado.");
+
+    }
+    else{
+
+        produtos.push({
+
+            id:proximoIdProduto++,
+
+            codigo:codigo,
+
+            nome:nome,
+
+            unidade:unidade,
+
+            estoque:estoque,
+
+            preco:preco
+
+        });
+
+
+        mostrarToast("Produto cadastrado.");
+
+    }
+
+
+    salvarDados();
+
+    fecharModalProduto();
+
+    renderizarProdutos();
+
+}
+
+
+/* =====================================================
+   RENDER PRODUTOS
+===================================================== */
+
+function renderizarProdutos(){
+
+    const tbody =
+        document.getElementById("tabelaProdutos");
+
+    if(!tbody) return;
+
+
+    const busca =
+        (
+            document.getElementById("buscaProduto")
+            ?.value || ""
+        )
+        .toLowerCase()
+        .trim();
+
+
+    const filtro =
+        document.getElementById("filtroEstoque")
+        ?.value || "";
+
+
+    const lista = produtos.filter(p => {
+
+        const texto = `
+            ${p.codigo}
+            ${p.nome}
+        `.toLowerCase();
+
+
+        if(busca && !texto.includes(busca)){
+            return false;
+        }
+
+
+        if(
+            filtro === "baixo" &&
+            Number(p.estoque) > 5
+        ){
+
+            return false;
+
+        }
+
+
+        if(
+            filtro === "normal" &&
+            Number(p.estoque) <= 5
+        ){
+
+            return false;
+
+        }
+
+
+        return true;
+
+    });
+
+
+    if(!lista.length){
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="7" class="empty">
+
+                    Nenhum produto encontrado.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML = lista.map(p => {
+
+        const estoqueBaixo =
+            Number(p.estoque || 0) <= 5;
+
+
+        return `
+
+            <tr>
+
+                <td>
+                    ${escaparHTML(p.codigo)}
+                </td>
+
+                <td>
+                    <strong>
+                        ${escaparHTML(p.nome)}
+                    </strong>
+                </td>
+
+                <td>
+                    ${escaparHTML(p.unidade)}
+                </td>
+
+                <td>
+                    ${p.estoque}
+                </td>
+
+                <td>
+                    ${formatarMoeda(p.preco)}
+                </td>
+
+                <td>
+
+                    ${
+                        estoqueBaixo
+                        ?
+                        `<span class="badge badge-low">
+                            Estoque baixo
+                         </span>`
+                        :
+                        `<span class="badge badge-stock">
+                            Normal
+                         </span>`
+                    }
+
+                </td>
+
+                <td>
+
+                    <div class="actions">
+
+                        <button
+                            class="action-btn edit"
+                            onclick="editarProduto(${p.id})"
+                        >
+                            Editar
+                        </button>
+
+                        <button
+                            class="action-btn delete"
+                            onclick="excluirProduto(${p.id})"
+                        >
+                            Excluir
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }).join("");
+
+}
+
+
+/* =====================================================
+   EDITAR PRODUTO
+===================================================== */
+
+function editarProduto(id){
+
+    const produto = produtos.find(
+        p => Number(p.id) === Number(id)
+    );
+
+    if(!produto) return;
+
+
+    document.getElementById("produtoEditando")
+        .value = produto.id;
+
+    document.getElementById("tituloModalProduto")
+        .textContent = "Editar Produto";
+
+    document.getElementById("produtoCodigo")
+        .value = produto.codigo || "";
+
+    document.getElementById("produtoNome")
+        .value = produto.nome || "";
+
+    document.getElementById("produtoUnidade")
+        .value = produto.unidade || "UN";
+
+    document.getElementById("produtoEstoque")
+        .value = produto.estoque || 0;
+
+    document.getElementById("produtoPreco")
+        .value = produto.preco || 0;
+
+
+    document.getElementById("modalProduto")
+        .classList.add("show");
+
+}
+
+
+/* =====================================================
+   EXCLUIR PRODUTO
+===================================================== */
+
+function excluirProduto(id){
+
+    const usado = notas.some(
+        n =>
+            (n.itens || []).some(
+                item =>
+                    Number(item.produtoId) === Number(id)
+            )
+    );
+
+
+    if(usado){
+
+        alert(
+            "Este produto está vinculado a uma nota fiscal. " +
+            "Não é possível excluí-lo."
+        );
+
+        return;
+
+    }
+
+
+    const produto = produtos.find(
+        p => Number(p.id) === Number(id)
+    );
+
+    if(!produto) return;
+
+
+    if(!confirm(
+        `Deseja excluir "${produto.nome}"?`
+    )){
+
+        return;
+
+    }
+
+
+    produtos = produtos.filter(
+        p => Number(p.id) !== Number(id)
+    );
+
+
+    salvarDados();
+
+    renderizarProdutos();
+
+    mostrarToast("Produto excluído.");
+
+}
+
+
+/* =====================================================
+   FECHAR DETALHES
+===================================================== */
+
+function fecharDetalhes(){
+
+    document.getElementById("modalDetalhes")
+        .classList.remove("show");
+
+}
+
+
+/* =====================================================
+   INICIALIZAÇÃO
+===================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        atualizarDashboard();
+
+        atualizarSelectEmpresas();
+
+        renderizarEmpresas();
+
+        renderizarProdutos();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
